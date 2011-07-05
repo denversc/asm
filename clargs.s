@@ -6,7 +6,7 @@ template:
 .global go
 go:
     # reserve 4 bytes on the stack for the local variable "i"
-    enter $4, $0
+    enter $16, $0
 
     # Local Variables:
     #   argc: 8(%ebp)
@@ -25,16 +25,15 @@ argloop:
     cmpl 8(%ebp), %ecx
     jge argloopend
 
-    # set edx to the the address of the string to print
+    # set edx to the the address of the element of argv to print
     movl 12(%ebp), %edx
+    movl (%edx, %ecx, 4), %edx
 
     # call printf()
-    pushl (%edx, %ecx, 4)
-    pushl %ecx
-    pushl $template
+    movl %edx, 8(%esp) # the element of argv to print
+    movl %ecx, 4(%esp) # the index of the element of argv
+    movl $template, (%esp)
     call printf
-    popl %ecx
-    popl %ecx
 
     # increment i
     incl -4(%ebp)
